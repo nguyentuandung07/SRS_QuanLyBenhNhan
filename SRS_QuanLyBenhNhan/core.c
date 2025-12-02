@@ -432,21 +432,27 @@ void SearchPatientByName()
     }
 
     char name[50];
+    bool empty = false;
     do
     {
         printf("  %sEnter name to search%s (Enter '-1' to return): ", BRIGHT_CYAN, RESET);
         fgets(name, sizeof(name), stdin);
         name[strcspn(name, "\n")] = '\0';
+
         if (strcmp(name, "-1") == 0)
         {
             clearScreen();
             return;
         }
-        if (strlen(name) == 0)
+        int start = 0, end = strlen(name) - 1;
+        while (start <= end && name[start] == ' ') start++;
+        while (end >= start && name[end] == ' ') end--;
+        if (start > end)
         {
-            printError("Name cannot be empty!");
+            printError("Name cannot be empty or contain only spaces!");
+            empty = true;
         }
-    } while (strlen(name) == 0);
+    } while (empty);
 
     clearScreen();
     printHeader("SEARCH RESULTS");
@@ -773,7 +779,7 @@ void inputNewRecord()
         }
         else
         {
-            printError("Invalid status! Enter 1 or 2.");
+            printError("Invalid status!");
         }
     } while (strlen(status) == 0 || (strcmp(status, "Follow-Up") != 0 && strcmp(status, "Re-Examination") != 0));
     
