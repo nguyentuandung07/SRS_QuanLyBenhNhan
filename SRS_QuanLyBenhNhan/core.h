@@ -14,6 +14,7 @@ void SortDescendingByDebt(); //Case6
 void SortPatientByDebt(); //Case6
 bool checkRealDate(char date[]); //Case7
 bool checkDateUsed(char date[]); //Case7
+bool checkFutureDate(char date[]); //Case7
 void inputNewRecord(); //Case7
 void viewRecord(); //Case8
 
