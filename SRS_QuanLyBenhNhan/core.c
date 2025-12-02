@@ -30,6 +30,7 @@ void inputNewPatient()
     double debt;
     struct Patient newPatient;
     int validPhone;
+    bool empty = false;
     clearScreen();
     if (PatientCount >= MAX)
     {
@@ -66,12 +67,15 @@ void inputNewPatient()
         printf("  %sEnter Name%s: ", BRIGHT_CYAN, RESET);
         fgets(name, sizeof(name), stdin);
         name[strcspn(name, "\n")] = '\0';
-        strcpy(newPatient.name, name);
-        if (strlen(name) == 0)
+        int start = 0, end = strlen(name) - 1;
+        while (start <= end && name[start] == ' ') start++;
+        while (end >= start && name[end] == ' ') end--;
+        if (start > end)
         {
-            printError("Name cannot be empty!");
+            printError("Name cannot be empty or contain only spaces!");
+            empty = true;
         }
-    } while (strlen(name) == 0);
+    } while (empty);
 
     do
     {
@@ -112,6 +116,7 @@ void inputNewPatient()
         {
             printError("Debt cannot be empty!");
         }
+        
         else
         {
             debt = atof(debtStr);
@@ -374,7 +379,7 @@ void viewPatient()
         for (int i = startIdx; i < endIdx; i++)
         {
             char debtStr[30];
-            snprintf(debtStr, sizeof(debtStr), "%.2lf", PatientList[i].debt);
+            snprintf(debtStr, sizeof(debtStr), "%.0lf", PatientList[i].debt);
 
             printf("%s| %-10s | %-28s | %-9s | %s%-16s%s | %-11d |%s\n",
                    BRIGHT_CYAN,
@@ -456,7 +461,7 @@ void SearchPatientByName()
         if (strstr(strlwr(PatientList[i].name), strlwr(name)) != NULL)
         {
             char debtStr[30];
-            snprintf(debtStr, sizeof(debtStr), "%.2lf", PatientList[i].debt);
+            snprintf(debtStr, sizeof(debtStr), "%.0lf", PatientList[i].debt);
 
             printf("%s| %-10s | %-28s | %-9s | %s%-16s%s | %-11d |%s\n",
                    BRIGHT_CYAN,
@@ -573,7 +578,7 @@ void SortPatientByDebt()
         for (int i = 0; i < PatientCount; i++)
         {
             char debtStr[30];
-            snprintf(debtStr, sizeof(debtStr), "%.2lf", PatientList[i].debt);
+            snprintf(debtStr, sizeof(debtStr), "%.0lf", PatientList[i].debt);
 
             printf("%s| %-10s | %-28s | %-9s | %s%-16s%s | %-11d |%s\n",
                    BRIGHT_CYAN,
@@ -599,6 +604,9 @@ bool checkRealDate(char date[])
 {
     char dayStr[3], monthStr[3], yearStr[5];
     int day, month, year;
+    if (strlen(date) != 10 || date[2] != '/' || date[5] != '/') {
+        return false;
+    }
     sscanf(date, "%2s/%2s/%4s", dayStr, monthStr, yearStr);
     day = atoi(dayStr);
     month = atoi(monthStr);
@@ -610,19 +618,10 @@ bool checkRealDate(char date[])
     int maxDays;
     switch (month)
     {
-    case 1:
-    case 3:
-    case 5:
-    case 7:
-    case 8:
-    case 10:
-    case 12:
+    case 1:case 3:case 5:case 7:case 8:case 10:case 12:
         maxDays = 31;
         break;
-    case 4:
-    case 6:
-    case 9:
-    case 11:
+    case 4:case 6:case 9:case 11:
         maxDays = 30;
         break;
     case 2:
@@ -653,6 +652,30 @@ bool checkDateUsed(char date[])
         {
             return true;
         }
+    }
+    return false;
+}
+
+bool checkFutureDate(char date[])
+{
+    char dayStr[3], monthStr[3], yearStr[5];
+    int day, month, year;
+    sscanf(date, "%2s/%2s/%4s", dayStr, monthStr, yearStr);
+    day = atoi(dayStr);
+    month = atoi(monthStr);
+    year = atoi(yearStr);
+
+    time_t now = time(NULL);
+    struct tm *timeinfo = localtime(&now);
+    int currentDay = timeinfo->tm_mday;
+    int currentMonth = timeinfo->tm_mon + 1;
+    int currentYear = timeinfo->tm_year + 1900;
+
+    if (year > currentYear ||
+        (year == currentYear && month > currentMonth) ||
+        (year == currentYear && month == currentMonth && day > currentDay))
+    {
+        return true;
     }
     return false;
 }
@@ -724,6 +747,10 @@ void inputNewRecord()
         {
             printError("Invalid date format! Use DD/MM/YYYY");
         }
+        else if (checkFutureDate(date))
+        {
+            printError("Date cannot be in the future!");
+        }
     } while (strlen(date) == 0 || !checkRealDate(date) || checkDateUsed(date));
 
     do
@@ -748,7 +775,7 @@ void inputNewRecord()
         {
             printError("Invalid status! Enter 1 or 2.");
         }
-    } while (strlen(status) == 0);
+    } while (strlen(status) == 0 || (strcmp(status, "Follow-Up") != 0 && strcmp(status, "Re-Examination") != 0));
     
     strcpy(newRecord.recId, itoa(RecordCount + 1, (char[20]){}, 10));
     strcpy(newRecord.cardId, cardId);
