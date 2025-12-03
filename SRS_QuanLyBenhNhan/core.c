@@ -757,7 +757,7 @@ void inputNewRecord()
         {
             printError("Date cannot be in the future!");
         }
-    } while (strlen(date) == 0 || !checkRealDate(date) || checkDateUsed(date));
+    } while (strlen(date) == 0 || !checkRealDate(date) || checkDateUsed(date) || checkFutureDate(date));
 
     do
     {
@@ -913,3 +913,4 @@ void viewRecord()
         }
     }
 }
+
