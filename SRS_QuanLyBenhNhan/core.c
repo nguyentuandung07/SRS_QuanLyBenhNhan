@@ -8,6 +8,9 @@
 #include "files.h"
 #include "ui.h"
 
+
+
+
 bool checkDischargedPatient(char cardId[])
 {
     for (int i = 0; i < RecordCount; i++)
@@ -913,4 +916,5 @@ void viewRecord()
         }
     }
 }
+
 
