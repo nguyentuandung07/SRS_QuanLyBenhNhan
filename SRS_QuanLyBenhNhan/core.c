@@ -75,6 +75,7 @@ void inputNewPatient()
             printError("Name cannot be empty or contain only spaces!");
             empty = true;
         }
+        else empty = false;
     } while (empty);
 
     do
@@ -452,6 +453,7 @@ void SearchPatientByName()
             printError("Name cannot be empty or contain only spaces!");
             empty = true;
         }
+        else empty = false;
     } while (empty);
 
     clearScreen();
@@ -913,6 +915,7 @@ void viewRecord()
         }
     }
 }
+
 
 
 
